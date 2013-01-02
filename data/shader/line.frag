@@ -6,6 +6,9 @@ varying float v_edge;
 varying vec2 v_position;
 
 void main() {
+    float x = gl_FragCoord.x;
+    float y = gl_FragCoord.y;
+
     float alpha = 0.6;
 
     // distance from 0.9, 0.0
@@ -24,5 +27,5 @@ void main() {
     }
     //alpha = alpha - (0.6 * ((abs(v_position.x) - 0.9) * 10));
 
-    gl_FragColor = vec4(1.0, 0.6, 0.4, alpha);
+    gl_FragColor = vec4(x / 1000, 0.6 + y / 1000, 0.4, alpha);
 }
