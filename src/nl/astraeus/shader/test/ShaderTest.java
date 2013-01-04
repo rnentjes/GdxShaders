@@ -76,9 +76,9 @@ public class ShaderTest extends Game {
     public static void main(String [] args) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
-        //config.setFromDisplayMode(LwjglApplicationConfiguration.getDesktopDisplayMode());
-        config.width=1024;
-        config.height=768;
+        config.setFromDisplayMode(LwjglApplicationConfiguration.getDesktopDisplayMode());
+        //config.width=1024;
+        //config.height=768;
         config.useGL20 = true;
         config.vSyncEnabled = true;
 

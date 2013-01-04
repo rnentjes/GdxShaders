@@ -26,6 +26,7 @@ public class ShaderHandler {
         createShaderProgram("basic2");
         createShaderProgram("simple");
         createShaderProgram("line");
+        createShaderProgram("point");
     }
 
     private void createShaderProgram(String name) {

@@ -21,7 +21,7 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
     protected static Random random = new Random(System.nanoTime());
 
     protected final BitmapFont font;
-    protected final BitmapFont ubuntuMedium88;
+    protected final BitmapFont ubuntuMedium;
     protected final SpriteBatch batch;
     protected final ShapeRenderer shapeRenderer;
 
@@ -33,7 +33,7 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
     private double avgDelta = 0;
 
     public BaseScreen() {
-        this.ubuntuMedium88 = new BitmapFont(Gdx.files.internal("data/font/UbuntuMedium88.fnt"), Gdx.files.internal("data/font/UbuntuMedium88.png"), false);
+        this.ubuntuMedium = new BitmapFont(Gdx.files.internal("data/font/UbuntuMedium83.fnt"), Gdx.files.internal("data/font/UbuntuMedium83.png"), false);
         this.font = new BitmapFont();
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -98,7 +98,7 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
         Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_DST_ALPHA);
     }
 
     @Override

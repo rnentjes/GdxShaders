@@ -1,9 +1,11 @@
 package nl.astraeus.shader.test.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import nl.astraeus.shader.test.util.MeshHelper;
 import nl.astraeus.shader.test.util.MeshHelperSimple;
 import nl.astraeus.shader.test.util.ShaderHandler;
@@ -24,9 +26,20 @@ public class Splash extends BaseScreen {
     private MeshHelperSimple meshHelper3;
     private MeshHelperSimple meshHelper4;
     private List<MeshHelperSimple> triangles = new ArrayList<MeshHelperSimple>(1000);
+    private PerspectiveCamera cam;
+
+    Matrix4 projection = new Matrix4();
+    Matrix4 view = new Matrix4();
+    Matrix4 model = new Matrix4();
+    Matrix4 model2 = new Matrix4();
+    Matrix4 combined = new Matrix4();
+    Vector3 axis = new Vector3(1, 0, 1).nor();
+    float angle = 45;
 
     @Override
     public void init() {
+        cam = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam.translate(0f, 0, 2f);
 
         meshHelper = new MeshHelper("basic");
         meshHelper2 = new MeshHelper("basic2");
@@ -98,13 +111,12 @@ public class Splash extends BaseScreen {
     }
 
     private Mesh lineMesh;
-    private Matrix4 lineMatrix = new Matrix4();
     public void createLineMesh() {
         float [] vertices = new float[] {
-                -1.0f, -1.0f, 0.0f,
-                 1.0f, -1.0f, 0.0f,
-                 1.0f,  1.0f, 0.0f,
-                -1.0f,  1.0f, 0.0f
+                -1.0f, -1.0f, -1.0f,
+                 1.0f, -1.0f, 1.0f,
+                 1.0f,  1.0f, 1.0f,
+                -1.0f,  1.0f, -1.0f
         };
 //                0.15f, 0.3f, 0.0f,};
 
@@ -118,11 +130,21 @@ public class Splash extends BaseScreen {
         Gdx.app.exit();
     }
 
+    private float flow = 0;
+    private float z = 0;
+
     @Override
     public void render(float delta ) {
         super.render(delta);
 
-        ShaderProgram program = ShaderHandler.get("line");
+        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
+            z -= 0.1f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+            z += 0.1f;
+        }
+
+        ShaderProgram program = ShaderHandler.get("point");
 
         program.begin();
 
@@ -130,17 +152,47 @@ public class Splash extends BaseScreen {
 
         long t = System.currentTimeMillis() - start;
         float time = t / 1000.0f;
-        lineMatrix = new Matrix4();
-        lineMatrix.scale(0.2f, 0.2f, 0);
-        //lineMatrix.scale((float)Math.sin(time) * 0.5f, (float)Math.cos(time) * 0.5f, 0);
-        lineMatrix.translate((float)Math.sin(time) * 0.0f, (float)Math.cos(time) * 7f, 0f);
 
-        program.setUniformMatrix("u_projectionViewMatrix", lineMatrix);
+
+        flow += 0.03f;
+        angle += delta * 40.0f;
+        float aspect = Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
+        projection.setToProjection(1.0f, 100.0f, 60.0f, aspect);
+        view.idt().trn(0, 0, z);
+
+        float t2 = time / 100f;
+        for (int i=1; i < 10001; i++) {
+            model.setToTranslation((float)Math.sin(t2*i*0.031f+ flow) * 20f,(float)Math.cos(t2*i*0.037f+ flow) * 20f, -60f+(float)Math.sin(t2*i*0.047f+ flow) * 20f);
+            model.scale(0.05f, 0.05f, 0.05f);
+            //model.rotate(axis, angle);
+            combined.set(projection).mul(view).mul(model);
+
+            program.setUniformMatrix("u_projectionViewMatrix", combined);
+            lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
+        }
+
+        model.setToTranslation( -1.8f, 0.8f, -2f );
+        model.scale(0.1f, 0.1f, 0.1f);
+        //model.rotate(axis, angle);
+        combined.set(projection).mul(view).mul(model);
+
+        program.setUniformMatrix("u_projectionViewMatrix", combined);
         lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
-        //program.end();
 
-        //program.begin();
+        model.setToTranslation( -1.8f, 0.8f, -50f + (float)Math.sin(time) * 48f );
+        model.scale(0.1f, 0.1f, 0.1f);
+        //model.rotate(axis, angle);
+        combined.set(projection).mul(view).mul(model);
+
+        program.setUniformMatrix("u_projectionViewMatrix", combined);
+        lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
+
+        program.end();
+
+/*
+        program.begin();
         lineMatrix = new Matrix4();
+        lineMatrix.translate(0,0,100f);
         lineMatrix.scale(0.5f, 0.1f, 0);
         lineMatrix.rotate(0,0,1, (float) (time * (180 / Math.PI)));
 
@@ -148,6 +200,7 @@ public class Splash extends BaseScreen {
         lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
 
         program.end();
+*/
 
         //meshHelper.drawMesh();
         //meshHelper2.drawMesh();
@@ -166,16 +219,16 @@ public class Splash extends BaseScreen {
         }*/
 
         batch.begin();
-        batch.enableBlending();
-        batch.setBlendFunction(GL11.GL_SRC_ALPHA, GL11.GL_DST_ALPHA);
+        //batch.enableBlending();
+        //batch.setBlendFunction(GL11.GL_SRC_ALPHA, GL11.GL_DST_ALPHA);
 
-        ubuntuMedium88.draw(batch, "Testing 123!", 100, Gdx.graphics.getHeight() - 100);
+//        ubuntuMedium.draw(batch, "Testing 123!", 100, Gdx.graphics.getHeight() - 300);
 
         font.draw(batch, "Delta "+getAvgDelta(), 50, 140);
         font.draw(batch, "FPS   "+getFps(), 50, 120);
 
-        font.draw(batch, "ESC. Exit", 50, 70);
-        font.draw(batch, "F1. Switch fullscreen", 50, 50);
+//        font.draw(batch, "ESC. Exit", 50, 70);
+//        font.draw(batch, "F1. Switch fullscreen", 50, 50);
 
         batch.end();
     }
