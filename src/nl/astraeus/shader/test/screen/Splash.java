@@ -161,7 +161,7 @@ public class Splash extends BaseScreen {
         view.idt().trn(0, 0, z);
 
         float t2 = time / 100f;
-        for (int i=1; i < 10001; i++) {
+        for (int i=1; i < 1001; i++) {
             model.setToTranslation((float)Math.sin(t2*i*0.031f+ flow) * 10f,(float)Math.cos(t2*i*0.037f+ flow) * 10f, -40f+(float)Math.sin(t2*i*0.047f+ flow) * 10f);
             model.scale(0.05f, 0.05f, 0.05f);
             //model.rotate(axis, angle);
@@ -171,7 +171,6 @@ public class Splash extends BaseScreen {
             lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
         }
 
-        /* point test
         model.setToTranslation( -1.8f, 0.8f, -2f );
         model.scale(0.1f, 0.1f, 0.1f);
         //model.rotate(axis, angle);
@@ -187,7 +186,6 @@ public class Splash extends BaseScreen {
 
         program.setUniformMatrix("u_projectionViewMatrix", combined);
         lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
-        */
 
         program.end();
 

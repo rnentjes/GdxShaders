@@ -11,11 +11,7 @@ void main() {
 
     float distance = v_position.x * v_position.x + v_position.y * v_position.y;
 
-    float alpha = 0;
-
-    if (distance <= 1) {
-        alpha = (1 - distance) * (1 - distance);
-    }
+    float alpha = smoothstep(0, 2, 2-(distance*2));
 
     gl_FragColor = vec4(0.2, 0.5, 1.0, alpha);
 }
