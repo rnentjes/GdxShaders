@@ -108,6 +108,7 @@ public class Splash extends BaseScreen {
         }, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
 
         createLineMesh();
+        createCubeMesh();
     }
 
     private Mesh lineMesh;
@@ -125,12 +126,39 @@ public class Splash extends BaseScreen {
         lineMesh.setVertices(vertices);
     }
 
+    private Mesh cubeMesh;
+    public void createCubeMesh() {
+        float [] vertices = new float[] {
+                -1f, -1f,  -1f,
+                 1f, -1f,  -1f,
+                 1f,  1f,  -1f,
+
+                 1f,  1f,   1f,
+                 1f,  -1f,  1f,
+
+
+                 1f,  1f,  1f,
+
+                // right
+                 1f, -1f,  -1f,
+                 1f, -1f,   1f,
+
+
+        };
+//                0.15f, 0.3f, 0.0f,};
+
+        cubeMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
+        cubeMesh.setVertices(vertices);
+    }
+
     @Override
     public void escaped() {
         Gdx.app.exit();
     }
 
     private float flow = 0;
+    private float x = 0;
+    private float y = 0;
     private float z = 0;
 
     @Override
@@ -142,6 +170,20 @@ public class Splash extends BaseScreen {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             z += 0.1f;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= 1f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += 1f;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            y -= 1f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            y += 1f;
         }
 
         ShaderProgram program = ShaderHandler.get("point");
@@ -189,6 +231,23 @@ public class Splash extends BaseScreen {
 
         program.end();
 
+
+        ShaderProgram testProgram = ShaderHandler.get("test");
+
+        testProgram.begin();
+
+        // whole screen in front
+        model.setToTranslation( 0f, 0f, -2f );
+        //model.scale(0.1f, 0.1f, 0.1f);
+        model.rotate(1,0,0,x);
+        model.rotate(0,1,0,y);
+        combined.set(projection).mul(view).mul(model);
+
+        testProgram.setUniformMatrix("u_projectionViewMatrix", combined);
+        cubeMesh.render(testProgram, GL20.GL_TRIANGLE_STRIP);
+
+        testProgram.end();
+
 /*
         program.begin();
         lineMatrix = new Matrix4();
@@ -226,6 +285,7 @@ public class Splash extends BaseScreen {
 
         font.draw(batch, "Delta "+getAvgDelta(), 50, 140);
         font.draw(batch, "FPS   "+getFps(), 50, 120);
+        font.draw(batch, "x,y "+x+", "+y, 50, 100);
 
 //        font.draw(batch, "ESC. Exit", 50, 70);
 //        font.draw(batch, "F1. Switch fullscreen", 50, 50);
