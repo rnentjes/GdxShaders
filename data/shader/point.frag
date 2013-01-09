@@ -2,7 +2,6 @@
 precision mediump float;
 #endif
 
-varying float v_edge;
 varying vec2 v_position;
 
 void main() {

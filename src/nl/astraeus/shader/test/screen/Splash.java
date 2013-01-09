@@ -35,6 +35,7 @@ public class Splash extends BaseScreen {
     Matrix4 combined = new Matrix4();
     Vector3 axis = new Vector3(1, 0, 1).nor();
     float angle = 45;
+    int points = 1000;
 
     @Override
     public void init() {
@@ -108,6 +109,7 @@ public class Splash extends BaseScreen {
         }, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
 
         createLineMesh();
+        createPointMesh();
         createCubeMesh();
     }
 
@@ -124,6 +126,19 @@ public class Splash extends BaseScreen {
         lineMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"),
                 new VertexAttribute(VertexAttributes.Usage.Generic, 1, "a_edge"));
         lineMesh.setVertices(vertices);
+    }
+
+    private Mesh pointMesh;
+    public void createPointMesh() {
+        float [] vertices = new float[] {
+                -1.0f, -1.0f,
+                1.0f, -1.0f,
+                1.0f,  1.0f,
+                -1.0f,  1.0f,
+        };
+
+        pointMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"));
+        pointMesh.setVertices(vertices);
     }
 
     private Mesh cubeMesh;
@@ -170,6 +185,13 @@ public class Splash extends BaseScreen {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             z += 0.1f;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
+            points -= 25;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET)) {
+            points += 25;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -285,7 +307,8 @@ public class Splash extends BaseScreen {
 
         font.draw(batch, "Delta "+getAvgDelta(), 50, 140);
         font.draw(batch, "FPS   "+getFps(), 50, 120);
-        font.draw(batch, "x,y "+x+", "+y, 50, 100);
+        font.draw(batch, "Points   "+points, 50, 100);
+        font.draw(batch, "x,y "+x+", "+y, 50, 80);
 
 //        font.draw(batch, "ESC. Exit", 50, 70);
 //        font.draw(batch, "F1. Switch fullscreen", 50, 50);
