@@ -111,6 +111,7 @@ public class Splash extends BaseScreen {
         createLineMesh();
         createPointMesh();
         createCubeMesh();
+        createTestMesh();
     }
 
     private Mesh lineMesh;
@@ -144,11 +145,13 @@ public class Splash extends BaseScreen {
     private Mesh cubeMesh;
     public void createCubeMesh() {
         float [] vertices = new float[] {
-                -1f, -1f,  -1f,
-                 1f, -1f,  -1f,
+                //front
+                -1f,  1f,  -1f,
                  1f,  1f,  -1f,
+                -1f, -1f,  1f,
+                 1f,  -1f, -1f,
 
-                 1f,  1f,   1f,
+                /*
                  1f,  -1f,  1f,
 
 
@@ -157,13 +160,40 @@ public class Splash extends BaseScreen {
                 // right
                  1f, -1f,  -1f,
                  1f, -1f,   1f,
-
+*/
 
         };
 //                0.15f, 0.3f, 0.0f,};
 
         cubeMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
         cubeMesh.setVertices(vertices);
+    }
+
+    private Mesh testMesh;
+    public void createTestMesh() {
+        float [] vertices = new float[] {
+                //front
+                -1f,  1f,  -1f,
+                1f,  1f,  -1f,
+                -1f, -1f,  1f,
+                1f,  -1f, -1f,
+
+                /*
+                 1f,  -1f,  1f,
+
+
+                 1f,  1f,  1f,
+
+                // right
+                 1f, -1f,  -1f,
+                 1f, -1f,   1f,
+*/
+
+        };
+//                0.15f, 0.3f, 0.0f,};
+
+        testMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
+        testMesh.setVertices(vertices);
     }
 
     @Override
@@ -181,10 +211,10 @@ public class Splash extends BaseScreen {
         super.render(delta);
 
         if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-            z -= 0.1f;
+            z += 0.1f;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
-            z += 0.1f;
+            z -= 0.1f;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
@@ -241,7 +271,7 @@ public class Splash extends BaseScreen {
         combined.set(projection).mul(view).mul(model);
 
         program.setUniformMatrix("u_projectionViewMatrix", combined);
-        lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
+        pointMesh.render(program, GL20.GL_TRIANGLE_FAN);
 
         model.setToTranslation( -1.8f, 0.8f, -50f + (float)Math.sin(time) * 48f );
         model.scale(0.1f, 0.1f, 0.1f);
@@ -266,7 +296,7 @@ public class Splash extends BaseScreen {
         combined.set(projection).mul(view).mul(model);
 
         testProgram.setUniformMatrix("u_projectionViewMatrix", combined);
-        cubeMesh.render(testProgram, GL20.GL_TRIANGLE_STRIP);
+        cubeMesh.render(testProgram, GL20.GL_LINE_STRIP);
 
         testProgram.end();
 
