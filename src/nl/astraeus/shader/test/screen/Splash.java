@@ -170,30 +170,10 @@ public class Splash extends BaseScreen {
     }
 
     private Mesh testMesh;
+    private float [] testVertices = new float[3000];
     public void createTestMesh() {
-        float [] vertices = new float[] {
-                //front
-                -1f,  1f,  -1f,
-                1f,  1f,  -1f,
-                -1f, -1f,  1f,
-                1f,  -1f, -1f,
-
-                /*
-                 1f,  -1f,  1f,
-
-
-                 1f,  1f,  1f,
-
-                // right
-                 1f, -1f,  -1f,
-                 1f, -1f,   1f,
-*/
-
-        };
-//                0.15f, 0.3f, 0.0f,};
-
-        testMesh = new Mesh(true, vertices.length, 0, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
-        testMesh.setVertices(vertices);
+        testMesh = new Mesh(false, 3000, 0, new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
+        testMesh.setVertices(testVertices);
     }
 
     @Override
@@ -283,8 +263,16 @@ public class Splash extends BaseScreen {
 
         program.end();
 
-
         ShaderProgram testProgram = ShaderHandler.get("test");
+
+        int index = 0;
+        for (int i=0; i < 1000; i++) {
+            testVertices[index++] = (float)Math.sin(t2*i*0.047f+ flow);
+            testVertices[index++] = (float)Math.cos(t2*i*0.053f+ flow);
+            testVertices[index++] = (float)Math.sin(t2*i*0.057f+ flow);
+        }
+
+        testMesh.setVertices(testVertices);
 
         testProgram.begin();
 
@@ -295,8 +283,10 @@ public class Splash extends BaseScreen {
         model.rotate(0,1,0,y);
         combined.set(projection).mul(view).mul(model);
 
+        Gdx.graphics.getGLCommon().glLineWidth(2f);
+
         testProgram.setUniformMatrix("u_projectionViewMatrix", combined);
-        cubeMesh.render(testProgram, GL20.GL_LINE_STRIP);
+        testMesh.render(testProgram, GL20.GL_LINE_STRIP);
 
         testProgram.end();
 
