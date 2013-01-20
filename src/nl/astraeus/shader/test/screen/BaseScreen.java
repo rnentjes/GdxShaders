@@ -20,10 +20,10 @@ import java.util.Random;
 public abstract class BaseScreen extends InputAdapter implements Screen {
     protected static Random random = new Random(System.nanoTime());
 
-    protected final BitmapFont font;
-    protected final BitmapFont ubuntuMedium;
-    protected final SpriteBatch batch;
-    protected final ShapeRenderer shapeRenderer;
+    protected BitmapFont font;
+    protected BitmapFont ubuntuMedium;
+    protected SpriteBatch batch;
+    protected ShapeRenderer shapeRenderer;
 
     protected boolean escaped = false;
     protected boolean F1 = false;
@@ -33,15 +33,41 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
     private double avgDelta = 0;
 
     public BaseScreen() {
-        this.ubuntuMedium = new BitmapFont(Gdx.files.internal("data/font/UbuntuMedium83.fnt"), Gdx.files.internal("data/font/UbuntuMedium83.png"), false);
-        this.font = new BitmapFont();
-        this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
     }
 
     public void setScreen(BaseScreen screen) {
-        screen.init();
         ShaderTest.game.setScreen(screen);
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        boolean result = true;
+
+        switch(keycode) {
+            case Input.Keys.NUM_1:
+                setScreen(ShaderTest.SPLASH);
+                break;
+            case Input.Keys.NUM_2:
+                setScreen(ShaderTest.PARTICLES);
+                break;
+            case Input.Keys.NUM_3:
+                setScreen(ShaderTest.STARS);
+                break;
+            case Input.Keys.NUM_4:
+                setScreen(ShaderTest.TUNNEL);
+                break;
+            case Input.Keys.NUM_5:
+                setScreen(ShaderTest.CUBES);
+                break;
+            case Input.Keys.NUM_6:
+                setScreen(ShaderTest.SIMPLE_GAME);
+                break;
+            default:
+                result = false;
+                break;
+        }
+
+        return result;
     }
 
     public abstract void init();
@@ -94,7 +120,7 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
         }
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.gl.glClearColor( 0.03f, 0f, 0.03f, 1.0f );
+        Gdx.gl.glClearColor( 0f, 0f, 0f, 1.0f );
         Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -102,10 +128,26 @@ public abstract class BaseScreen extends InputAdapter implements Screen {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        Gdx.input.setInputProcessor(this);
+
+        this.ubuntuMedium = new BitmapFont(Gdx.files.internal("data/font/UbuntuMedium83.fnt"), Gdx.files.internal("data/font/UbuntuMedium83.png"), false);
+        this.font = new BitmapFont();
+        this.batch = new SpriteBatch();
+        this.shapeRenderer = new ShapeRenderer();
+
+        init();
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+        this.batch.dispose();
+        this.shapeRenderer.dispose();
+        this.ubuntuMedium.dispose();
+        this.font.dispose();
+
+        Gdx.input.setInputProcessor(null);
+    }
 
     @Override
     public void pause() {}

@@ -5,9 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL10;
-import nl.astraeus.shader.test.screen.BaseScreen;
-import nl.astraeus.shader.test.screen.Particles;
-import nl.astraeus.shader.test.screen.Splash;
+import nl.astraeus.shader.test.screen.*;
 import nl.astraeus.shader.test.util.ShaderHandler;
 
 /**
@@ -22,16 +20,24 @@ public class ShaderTest extends Game {
     public static Game game = new ShaderTest();
 
     public static BaseScreen SPLASH;
+    public static BaseScreen STARS;
+    public static BaseScreen CUBES;
+    public static BaseScreen TUNNEL;
     public static BaseScreen PARTICLES;
+    public static BaseScreen SIMPLE_GAME;
 
     @Override
     public void create() {
         Gdx.app.log( LOG, "Creating game" );
 
         SPLASH = new Splash();
+        STARS = new Stars();
+        CUBES = new Cubes();
+        TUNNEL = new Tunnel();
         PARTICLES = new Particles();
-        SPLASH.init();
-        setScreen(SPLASH);
+        SIMPLE_GAME = new SimpleGame();
+
+        setScreen(SIMPLE_GAME);
 
         Gdx.gl.glEnable(GL10.GL_LINE_SMOOTH);
     }

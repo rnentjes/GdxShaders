@@ -3,17 +3,18 @@ precision mediump float;
 #endif
 
 varying vec2 v_position;
+varying vec3 v_star_color;
+varying float v_star_alpha;
 
 void main() {
     float x = gl_FragCoord.x;
     float y = gl_FragCoord.y;
-    float z = gl_FragCoord.z;
 
     float distance = v_position.x * v_position.x + v_position.y * v_position.y;
 
-    float red = abs(sin(x*100));
-    float green = abs(sin(y*100));
-    float blue = abs(sin(x*100 + y*100));
+    //float alpha = 1 - smoothstep(0, 1, distance);
+    float alpha = smoothstep(0, 2, 2-(distance*2));
+     //* v_star_alpha;
 
-    gl_FragColor = vec4(red, green, blue, 0.65);
+    gl_FragColor = vec4(v_star_color, alpha);
 }

@@ -27,6 +27,13 @@ public class ShaderHandler {
         createShaderProgram("simple");
         createShaderProgram("line");
         createShaderProgram("point");
+        createShaderProgram("red_point");
+        createShaderProgram("blue_point");
+        createShaderProgram("star");
+        createShaderProgram("circle");
+        createShaderProgram("bordered_circle");
+        createShaderProgram("square");
+        createShaderProgram("cube");
         createShaderProgram("test");
     }
 

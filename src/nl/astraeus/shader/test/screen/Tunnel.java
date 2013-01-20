@@ -18,7 +18,21 @@ import java.util.List;
  * Date: 1/1/13
  * Time: 7:08 PM
  */
-public class Splash extends BaseScreen {
+public class Tunnel extends BaseScreen {
+
+    private final static float DEPTH = 500;
+
+    private List<Star> stars = new ArrayList<Star>(10000);
+
+    private static class Star {
+        public float x,y,z;
+
+        private Star(float x, float y, float z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
 
     private long start = System.currentTimeMillis();
     private MeshHelper meshHelper;
@@ -34,13 +48,16 @@ public class Splash extends BaseScreen {
     Matrix4 model2 = new Matrix4();
     Matrix4 combined = new Matrix4();
     Vector3 axis = new Vector3(1, 0, 1).nor();
-    float angle = 45;
+
     int points = 1000;
 
     @Override
     public void init() {
         cam = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         cam.translate(0f, 0, 2f);
+
+        float aspect = Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
+        projection.setToProjection(1.0f, DEPTH, 60.0f, aspect);
 
         meshHelper = new MeshHelper("basic");
         meshHelper2 = new MeshHelper("basic2");
@@ -186,22 +203,28 @@ public class Splash extends BaseScreen {
     private float y = 0;
     private float z = 0;
 
+    private void generateStars(int amount) {
+        while(amount-- > 0) {
+            double angle = random.nextDouble() * Math.PI * 2;
+
+            float x = (float)Math.sin(angle) * 2;
+            float y = (float)Math.cos(angle) * 2;
+
+            Star star = new Star(x , y, - random.nextFloat() * DEPTH);
+
+            stars.add(star);
+        }
+    }
+
     @Override
     public void render(float delta ) {
         super.render(delta);
-
-        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-            z += 0.1f;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
-            z -= 0.1f;
-        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             points -= 25;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT_BRACKET)) {
-            points += 25;
+            generateStars(25);
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -218,27 +241,35 @@ public class Splash extends BaseScreen {
             y += 1f;
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
+            z += 0.1f;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+            z -= 0.1f;
+        }
+
+        // move the stars
+        for (Star star : stars) {
+            star.z += 1;
+
+            if (star.z > 0) {
+                star.z -= DEPTH;
+            }
+        }
+
+        // render the stars
         ShaderProgram program = ShaderHandler.get("point");
 
         program.begin();
 
-        Gdx.gl.glLineWidth(5.0f);
+        view.idt().setToTranslation(0, 0, z);
 
-        long t = System.currentTimeMillis() - start;
-        float time = t / 1000.0f;
+        view.rotate(1,0,0,x);
+        view.rotate(0,1,0,y);
 
-
-        flow += 0.03f;
-        angle += delta * 40.0f;
-        float aspect = Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
-        projection.setToProjection(1.0f, 100.0f, 60.0f, aspect);
-        view.idt().trn(0, 0, z);
-
-        float t2 = time / 100f;
-        for (int i=1; i < 1001; i++) {
-            model.setToTranslation((float)Math.sin(t2*i*0.031f+ flow) * 10f,(float)Math.cos(t2*i*0.037f+ flow) * 10f, -40f+(float)Math.sin(t2*i*0.047f+ flow) * 10f);
+        for (Star star : stars) {
+            model.setToTranslation(star.x, star.y, star.z);
             model.scale(0.05f, 0.05f, 0.05f);
-            //model.rotate(axis, angle);
             combined.set(projection).mul(view).mul(model);
 
             program.setUniformMatrix("u_projectionViewMatrix", combined);
@@ -246,85 +277,6 @@ public class Splash extends BaseScreen {
         }
 
         program.end();
-
-        program = ShaderHandler.get("bordered_circle");
-
-        program.begin();
-
-        model.setToTranslation( -0.8f, 0.8f, -2f );
-        model.scale(1f, 0.5f, 1f);
-        //model.rotate(axis, angle);
-        combined.set(projection).mul(view).mul(model);
-
-        program.setUniformMatrix("u_projectionViewMatrix", combined);
-        pointMesh.render(program, GL20.GL_TRIANGLE_FAN);
-
-        model.setToTranslation( -0.8f, 0.8f, -50f + (float)Math.sin(time) * 48f );
-        model.scale(0.6f, 0.6f, 0.6f);
-        //model.rotate(axis, angle);
-        combined.set(projection).mul(view).mul(model);
-
-        program.setUniformMatrix("u_projectionViewMatrix", combined);
-        lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
-
-        program.end();
-
-        ShaderProgram testProgram = ShaderHandler.get("simple");
-
-        t2 = time / 10f;
-        int index = 0;
-        for (int i=0; i < 1000; i++) {
-            testVertices[index++] = (float)(Math.sin(t2*i*0.011f+ flow) * Math.sin(t2*i*0.031f+ flow) + Math.sin(t2*i*0.032f+ flow));
-            testVertices[index++] = (float)(Math.cos(t2*i*0.017f+ flow) * Math.sin(t2*i*0.033f+ flow) + Math.sin(t2*i*0.034f+ flow));
-            testVertices[index++] = (float)(Math.sin(t2*i*0.023f+ flow) * Math.sin(t2*i*0.037f+ flow) + Math.sin(t2*i*0.038f+ flow));
-        }
-
-        testMesh.setVertices(testVertices);
-
-        testProgram.begin();
-
-        // whole screen in front
-        model.setToTranslation( 0f, 0f, -2f );
-        //model.scale(0.1f, 0.1f, 0.1f);
-        model.rotate(1,0,0,x);
-        model.rotate(0,1,0,y);
-        combined.set(projection).mul(view).mul(model);
-
-        Gdx.graphics.getGL20().glLineWidth(3f);
-
-        testProgram.setUniformMatrix("u_projectionViewMatrix", combined);
-        testMesh.render(testProgram, GL20.GL_TRIANGLES);
-
-        testProgram.end();
-
-/*
-        program.begin();
-        lineMatrix = new Matrix4();
-        lineMatrix.translate(0,0,100f);
-        lineMatrix.scale(0.5f, 0.1f, 0);
-        lineMatrix.rotate(0,0,1, (float) (time * (180 / Math.PI)));
-
-        program.setUniformMatrix("u_projectionViewMatrix", lineMatrix);
-        lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
-
-        program.end();
-*/
-
-        //meshHelper.drawMesh();
-        //meshHelper2.drawMesh();
-        //meshHelper3.getMatrix().rotate(1.0f, 1.0f, 0.0f, 001f);
-
-        //meshHelper3.drawMesh();
-//        meshHelper4.drawMesh();
-
-        /*
-        float r = 0.01f;
-        //r += 0.0001f;
-        for (MeshHelperSimple simple : triangles) {
-            simple.getMatrix().rotate(1.0f, 1.0f, 0.0f, r);
-
-            simple.drawMesh();
-        }*/
 
         batch.begin();
         //batch.enableBlending();
@@ -334,13 +286,14 @@ public class Splash extends BaseScreen {
 
         font.draw(batch, "Delta "+getAvgDelta(), 50, 140);
         font.draw(batch, "FPS   "+getFps(), 50, 120);
-        font.draw(batch, "Points   "+points, 50, 100);
-        font.draw(batch, "x,y "+x+", "+y, 50, 80);
+        font.draw(batch, "Stars "+stars.size(), 50, 100);
+        font.draw(batch, "x,y,z "+x+", "+y+", "+z, 50, 80);
 
 //        font.draw(batch, "ESC. Exit", 50, 70);
 //        font.draw(batch, "F1. Switch fullscreen", 50, 50);
 
         batch.end();
+
     }
 
     @Override
