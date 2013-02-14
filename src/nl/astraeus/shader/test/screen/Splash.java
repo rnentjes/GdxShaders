@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class Splash extends BaseScreen {
 
-    private long start = System.currentTimeMillis();
+    private long start = System.currentTimeMillis() - 100000;
     private MeshHelper meshHelper;
     private MeshHelper meshHelper2;
     private MeshHelperSimple meshHelper3;
@@ -181,7 +181,7 @@ public class Splash extends BaseScreen {
         Gdx.app.exit();
     }
 
-    private float flow = 0;
+    private float flow = 100f;
     private float x = 0;
     private float y = 0;
     private float z = 0;
@@ -218,7 +218,7 @@ public class Splash extends BaseScreen {
             y += 1f;
         }
 
-        ShaderProgram program = ShaderHandler.get("point");
+        ShaderProgram program = ShaderHandler.get("color_point");
 
         program.begin();
 
@@ -228,20 +228,28 @@ public class Splash extends BaseScreen {
         float time = t / 1000.0f;
 
 
-        flow += 0.03f;
+        flow += 0.08f;
         angle += delta * 40.0f;
         float aspect = Gdx.graphics.getWidth() / (float)Gdx.graphics.getHeight();
         projection.setToProjection(1.0f, 100.0f, 60.0f, aspect);
         view.idt().trn(0, 0, z);
 
+        float [] colors = new float[] { 0.9f, 0.3f, 0.2f };
         float t2 = time / 100f;
-        for (int i=1; i < 1001; i++) {
-            model.setToTranslation((float)Math.sin(t2*i*0.031f+ flow) * 10f,(float)Math.cos(t2*i*0.037f+ flow) * 10f, -40f+(float)Math.sin(t2*i*0.047f+ flow) * 10f);
-            model.scale(0.05f, 0.05f, 0.05f);
+        for (int i=1; i < 10001; i++) {
+            model.setToTranslation((float)Math.sin(t2*i*0.031f+ flow) * 10f * aspect,(float)Math.cos(t2*i*0.037f+ flow) * 10f, -40f+(float)Math.sin(t2*i*0.047f+ flow) * 10f);
+            model.scale(2f, 2f, 2f);
             //model.rotate(axis, angle);
             combined.set(projection).mul(view).mul(model);
 
             program.setUniformMatrix("u_projectionViewMatrix", combined);
+
+            float angle = (float)(((t2*i*0.031f+ flow) + Math.cos(t2*i*0.037f+ flow) + Math.sin(t2*i*0.047f+ flow)) / (Math.PI * 2));
+            java.awt.Color c = java.awt.Color.getHSBColor(angle, 0.8f, 0.3f);
+            c.getRGBColorComponents(colors);
+
+
+            program.setUniform3fv("u_color", colors , 0, 3);
             lineMesh.render(program, GL20.GL_TRIANGLE_FAN);
         }
 
